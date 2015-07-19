@@ -92,7 +92,7 @@ var divide = {
 		var m = n%d;
 		var o = [];
 		if(m) {
-			if(coin()) {
+			if(n<d || coin()) {
 				o.push({kind: 'add', text: '+'+(d-m),n:n+d-m});
 				n += d-m;
 			} else {
@@ -115,7 +115,7 @@ var fraction = {
 		var m = n%d;
 		var o = [];
 		if(m) {
-			if(coin()) {
+			if(n<d || coin()) {
 				o.push({kind: 'add', text: '+'+(d-m),n:n+d-m});
 				n += d-m;
 			} else {
