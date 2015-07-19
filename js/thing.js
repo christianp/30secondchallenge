@@ -35,13 +35,13 @@ function choice(l) {
 
 
 var square_it = {
-	test: function(n){ return n<20 },
+	test: function(n){ return n>1 && n<20 },
 	fn: function(n) {
 		return [{kind: 'square_it',text:'multiply it by itself',n:n*n}];
 	}
 }
 var cube_it = {
-	test: function(n){ return n<10 },
+	test: function(n){ return n>1 && n<10 },
 	fn: function(n) {
 		return [{kind: 'cube_it',text:'multiply it by itself twice',n: n*n*n}];
 	}
@@ -86,7 +86,7 @@ var multiply = {
 }
 
 var divide = {
-	test: function(n,steps) { return n>=10 && steps>=2 },
+	test: function(n,steps,last_move) { return n>=10 && steps>=2 && last_move!=multiply },
 	fn: function(n) {
 		var d = randrange(2,10);
 		var m = n%d;
@@ -201,14 +201,15 @@ Challenge.prototype = {
 		var form = $('<form>');
 		var input = $('<input type="number">');
 		form.append(input);
-		form.on('submit',function() {
+		function check_it() {
 			c.check(input.val());
-			return false;
-		});
+		}
+		form.on('submit',function() {check_it(); return false});
 		result.append(form);
 		container.append(result);
 		var timer = $('<li class="time">');
 		timer.append('<span class="text">');
+		timer.on('click',check_it);
 		this.timeInterval = setInterval(function() {c.update_time()},50);
 		container.append(timer);
 		return container;
@@ -225,6 +226,7 @@ Challenge.prototype = {
 		if(this.time_remaining<0) {
 			seconds = tenths = 0;
 			this.end(false);
+			this.html.find('.result input').val(this.result);
 			game.out_of_time();
 		}
 		var s = seconds+'.'+tenths+'s';
@@ -244,8 +246,7 @@ Challenge.prototype = {
 			this.end(true);
 			game.correct();
 		} else {
-			this.html.find('.result input').val('');
-			console.log(n,this.result);
+			this.html.find('.result input').val('').focus();
 		}
 	},
 
