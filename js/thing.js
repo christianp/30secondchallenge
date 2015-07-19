@@ -152,7 +152,12 @@ function Challenge(difficulty) {
 	this.difficulty = difficulty
 	this.level = levels[this.difficulty];
 
-	this.make_moves();
+	while(!this.moves) {
+		try {
+			this.make_moves();
+		}catch(e) {
+		}
+	}
 	
 	this.html = this.make_html();
 }
@@ -287,3 +292,21 @@ $(document).ready(function() {
 	});
 	game.new_challenge();
 });
+
+var owidth = null;
+function resize() {
+	if(window.innerWidth==owidth) {
+		return;
+	}
+	var w = owidth = window.innerWidth;
+	console.log(w);
+	var target = 100*13;
+	if(w>=target) {
+		var size = '20px';
+	} else {
+		size = 20*w/target;
+	}
+	$('html').css('font-size',size);
+}
+$(window).on('resize',resize);
+resize();

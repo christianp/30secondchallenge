@@ -3,6 +3,11 @@ html {
 	font-family: sans-serif;
 }
 
+body {
+	width: 60rem;
+	margin: 0 auto;
+}
+
 #challenges {
 	padding: 0;
 }
@@ -118,4 +123,5 @@ button.another {
     border: none;
     box-sizing: border-box;
     margin-right: 5em;
+	margin-bottom: 2em;
 }
