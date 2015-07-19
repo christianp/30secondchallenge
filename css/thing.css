@@ -8,6 +8,10 @@ body {
 	margin: 0 auto;
 }
 
+.instructions {
+	font-size: 16px;
+}
+
 #challenges {
 	padding: 0;
 }

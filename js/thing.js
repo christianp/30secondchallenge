@@ -299,7 +299,6 @@ function resize() {
 		return;
 	}
 	var w = owidth = window.innerWidth;
-	console.log(w);
 	var target = 100*13;
 	if(w>=target) {
 		var size = '20px';
