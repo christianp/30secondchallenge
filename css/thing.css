@@ -1,0 +1,112 @@
+html {
+	font-size: 20px;
+	font-family: sans-serif;
+}
+
+#challenges {
+	padding: 0;
+}
+
+.challenge {
+    list-style: none;
+    padding: 0;
+	margin-bottom: 2rem;
+}
+
+.challenge:not(:last-child) {
+	opacity: 0.3;
+}
+
+.challenge li {
+	box-sizing: border-box;
+    display: inline-block;
+    padding: 1rem;
+    width: 5rem;
+    height: 5rem;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 3em;
+}
+
+.challenge .difficulty {
+	border-radius: 0.3rem 0 0 0;
+}
+
+.challenge li:first-child {
+	border-radius: 0.3rem 0 0 0.3rem;
+}
+
+.challenge li:last-child {
+	border-radius: 0 0.3rem 0.3rem 0;
+}
+
+.challenge li.start {
+    border-left: 1px solid black;
+}
+.challenge li .text {
+    line-height: 1rem;
+    display: inline-block;
+    vertical-align: middle;
+}
+.challenge .move .text {
+	text-transform: uppercase;
+}
+
+.challenge .result input {
+    width: 3rem;
+    height: 2rem;
+    border: none;
+    border-bottom: 1px solid gray;
+    /* margin-top: 1rem; */
+	font-size: 1em;
+	background: transparent;
+}
+
+.challenge .result::before, .challenge .difficulty {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 1px;
+    background: black;
+    color: white;
+    line-height: 1.2em;
+}
+.challenge .result::before {
+    content: 'Answer';
+}
+
+.challenge .result, .challenge .start {
+    position: relative;
+}
+
+.challenge.difficulty-easy .difficulty {
+	background: green;
+}
+
+.challenge.difficulty-medium .difficulty {
+	background: #ffc200 /*amber*/;
+}
+
+.challenge.difficulty-hard .difficulty {
+	background: red;
+}
+
+.challenge .move.double_it .text, .challenge .move.halve_it .text, .challenge .move.square_it .text, .challenge .move.cube_it .text {
+    font-size: 0.7em;
+}
+
+.challenge .start .text {
+    font-size: 2em;
+}
+
+.challenge.correct .result {
+	background-color: lightgreen;
+}
+.challenge.out_of_time .time {
+	background-color: red;
+	color: white;
+}
