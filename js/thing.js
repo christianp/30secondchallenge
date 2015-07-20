@@ -11,8 +11,18 @@ function show_time(t) {
 var superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 var subscripts = "₀₁₂₃₄₅₆₇₈₉";
 
+function show_script(n,scripts) {
+	var s = '';
+	while(n) {
+		var m = n%10;
+		s = scripts[m]+s;
+		n=(n-m)/10;
+	}
+	return s;
+}
+
 function show_fraction(n,d) {
-	return superscripts[n]+'/'+subscripts[d];
+	return show_script(n,superscripts)+'/'+show_script(d,subscripts);
 }
 
 function coin() {
