@@ -2,6 +2,19 @@ function randrange(a,b) {
 	return Math.floor(Math.random()*(b-a)+a);
 }
 
+function show_time(t) {
+	var tenths = Math.floor(t*10) % 10;
+	var seconds = Math.floor(t);
+	return seconds+'.'+tenths+'s'
+}
+
+var superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+var subscripts = "₀₁₂₃₄₅₆₇₈₉";
+
+function show_fraction(n,d) {
+	return superscripts[n]+'/'+subscripts[d];
+}
+
 function coin() {
 	return Math.random()>0.5;
 }
@@ -105,9 +118,6 @@ var divide = {
 	}
 }
 
-var superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹";
-var subscripts = "₀₁₂₃₄₅₆₇₈₉";
-
 var fraction = {
 	test: function(n,steps){ return steps>=2 },
 	fn: function(n) {
@@ -129,7 +139,7 @@ var fraction = {
 		i /= g;
 		d /= g;
 
-		o.push({kind: 'fraction', text: superscripts[i]+'/'+subscripts[d]+' of this', n: n*i/d});
+		o.push({kind: 'fraction', text: show_fraction(i,d)+' of this', n: n*i/d});
 		return o;
 	}
 }
@@ -144,8 +154,8 @@ var ten_percent = {
 
 var levels = {
 	'easy': {steps: 9, start: [1,20], moves: [multiply,halve_it,add,subtract,square_it,divide]},
-	'medium': {steps: 9, start: [10,100], moves: [multiply,halve_it,double_it,square_it,divide,fraction]},
-	'hard': {steps: 9, start: [1,100], moves: [multiply,halve_it,square_it,cube_it,divide,fraction,ten_percent]}
+	'medium': {steps: 9, start: [10,100], moves: [multiply,halve_it,double_it,square_it,divide,fraction,subtract]},
+	'hard': {steps: 9, start: [1,100], moves: [multiply,halve_it,square_it,cube_it,divide,fraction,ten_percent,add,subtract]}
 }
 
 function Challenge(difficulty) {
@@ -184,7 +194,7 @@ Challenge.prototype = {
 		this.moves = moves;
 		this.result = n;
 		this.time = new Date();
-		this.time_remaining = 30;
+		this.time_remaining = this.time_available = 30;
 	},
 
 	make_html: function() {
@@ -225,16 +235,14 @@ Challenge.prototype = {
 		var diff = (d - this.time)/1000;
 		this.time = d;
 		this.time_remaining -= diff;
-		var tenths = Math.floor(this.time_remaining*10) % 10;
-		var seconds = Math.floor(this.time_remaining);
 
 		if(this.time_remaining<0) {
-			seconds = tenths = 0;
+			this.time_remaining = 0;
 			this.end(false);
 			this.html.find('.result input').val(this.result);
-			game.out_of_time();
+			game.new_challenge();
 		}
-		var s = seconds+'.'+tenths+'s';
+		var s = show_time(this.time_remaining);
 		this.html.find('.time .text').text(s);
 	},
 
@@ -249,7 +257,7 @@ Challenge.prototype = {
 		if(n==this.result) {
 			this.correct = true;
 			this.end(true);
-			game.correct();
+			game.new_challenge();
 		} else {
 			this.html.find('.result input').val('').focus();
 		}
@@ -260,11 +268,16 @@ Challenge.prototype = {
 		this.html.addClass('finished '+(correct?'correct':'out_of_time'));
 		this.html.find('.result input').attr('disabled',true);
 		this.stop_timing();
+		game.end_game();
 	}
 }
 
 function Game() {
 	this.difficulty = 'easy';
+	this.scores = {};
+	for(var difficulty in levels) {
+		this.scores[difficulty] = {streak: 0, correct: 0, attempted: 0, total_time: 0, average_time: null};
+	}
 }
 Game.prototype = {
 	new_challenge: function() {
@@ -276,11 +289,23 @@ Game.prototype = {
 		c.html.find('.result input').focus();
 		window.scrollTo(0,c.html.offset().top);
 	},
-	correct: function() {
-		this.new_challenge();
-	},
-	out_of_time: function() {
-		this.new_challenge();
+	end_game: function() {
+		var c = this.current_challenge;
+		var score = this.scores[c.difficulty];
+
+		score.attempted += 1;
+
+		if(c.correct) {
+			score.correct += 1;
+			score.streak += 1;
+			score.total_time += c.time_available - c.time_remaining;
+			score.average_time = score.total_time/score.correct;
+		} else {
+			score.streak = 0;
+		}
+
+		var summary_element = $('<li class="summary"><span class="score">'+show_fraction(score.correct,score.attempted)+'</span> '+c.difficulty+' puzzles solved'+(score.streak>0 ? ' <span class="streak">(streak '+score.streak+')</span>':'')+'. Average time <span class="average_time">'+(score.average_time!==null ? show_time(score.average_time) : '∞s')+'</span>');
+		$('#challenges').append(summary_element);
 	}
 }
 

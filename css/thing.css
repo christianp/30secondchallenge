@@ -14,11 +14,14 @@ body {
 
 #challenges {
 	padding: 0;
+	list-style: none;
 }
 
 .challenge {
     list-style: none;
     padding: 0;
+}
+.challenge, .summary {
 	margin-bottom: 2rem;
 }
 
@@ -128,4 +131,8 @@ button.another {
     box-sizing: border-box;
     margin-right: 5em;
 	margin-bottom: 2em;
+}
+
+.summary {
+
 }
