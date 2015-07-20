@@ -139,7 +139,7 @@ var fraction = {
 		i /= g;
 		d /= g;
 
-		o.push({kind: 'fraction', text: show_fraction(i,d)+' of this', n: n*i/d});
+		o.push({kind: 'fraction', text: show_fraction(i,d)+' of this', label: i+' / '+d+' of this', n: n*i/d});
 		return o;
 	}
 }
@@ -202,19 +202,22 @@ Challenge.prototype = {
 		var container = $('<ol class="challenge">');
 		container.addClass('difficulty-'+this.difficulty);
 		var start = $('<li class="start">');
-		start.append($('<span class="text">').text(this.start));
 		start.append($('<span class="difficulty">').text(this.difficulty));
+		start.append($('<span class="text" tabindex="1">').text(this.start));
 		container.append(start);
 		for(var i=0;i<this.moves.length;i++) {
 			var move_element = $('<li class="move">');
 			move_element.addClass(this.moves[i].kind);
-			var text_element = $('<span class="text">').text(this.moves[i].text);
+			var text_element = $('<span class="text" tabindex="1">').text(this.moves[i].text);
+			if(this.moves[i].label) {
+				text_element.attr('aria-label',this.moves[i].label);
+			}
 			move_element.append(text_element);
 			container.append(move_element);
 		}
 		var result = $('<li class="result">');
 		var form = $('<form>');
-		var input = $('<input type="number">');
+		var input = $('<input type="number" tabindex="1" title="Answer">');
 		form.append(input);
 		function check_it() {
 			c.check(input.val());
@@ -274,6 +277,7 @@ Challenge.prototype = {
 
 function Game() {
 	this.difficulty = 'easy';
+	this.focus = 'answer';
 	this.scores = {};
 	for(var difficulty in levels) {
 		this.scores[difficulty] = {streak: 0, correct: 0, attempted: 0, total_time: 0, average_time: null};
@@ -286,7 +290,14 @@ Game.prototype = {
 		}
 		var c = this.current_challenge = new Challenge(this.difficulty);
 		$('#challenges').append(c.html);
-		c.html.find('.result input').focus();
+		switch(this.focus) {
+		case 'input':
+			c.html.find('.result input').focus();
+			break;
+		case 'start':
+			c.html.find('.start .text').focus();
+			break;
+		}
 		window.scrollTo(0,c.html.offset().top);
 	},
 	end_game: function() {
@@ -314,6 +325,9 @@ $(document).ready(function() {
 	$('.another').on('click',function() {
 		game.difficulty = $(this).attr('data-difficulty');
 		game.new_challenge()
+	});
+	$('#focus_toggle').on('change',function() {
+		game.focus = $(this).prop('checked') ? 'start' : 'input';
 	});
 	game.new_challenge();
 });
