@@ -301,7 +301,7 @@ Game.prototype = {
 		var c = this.current_challenge = new Challenge(this.difficulty);
 		$('#challenges').append(c.html);
 		switch(this.focus) {
-		case 'input':
+		case 'answer':
 			c.html.find('.result input').focus();
 			break;
 		case 'start':
