@@ -25,7 +25,7 @@ body {
 	margin-bottom: 2rem;
 }
 
-.challenge:not(:last-child) {
+.challenge.finished {
 	opacity: 0.3;
 }
 
