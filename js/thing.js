@@ -32,18 +32,6 @@ function coin() {
 	return Math.random()>0.5;
 }
 
-function divisors(n) {
-	var d = [];
-	var i = 2;
-	while(i*i<=n) {
-		if(n%i==0) {
-			d.push(i);
-		}
-		i+=1;
-	}
-	return d;
-}
-
 function gcd(a,b) {
 	if(a>b){return gcd(b,a);}
 	while(a>0) {
@@ -275,7 +263,7 @@ Challenge.prototype = {
 		function check_it() {
 			c.check(input.val());
 		}
-		form.on('submit',function() {check_it(); return false});
+		form.on('submit',function(e) {e.preventDefault(); check_it(); return false});
 		result.append(form);
 		container.append(result);
 		var timer = $('<li class="time">');
@@ -295,8 +283,6 @@ Challenge.prototype = {
 		if(this.time_remaining<0) {
 			this.time_remaining = 0;
 			this.end(false);
-			this.html.find('.result input').val(this.result);
-			game.new_challenge();
 		}
 		var s = show_time(this.time_remaining);
 		this.html.find('.time .text').text(s);
@@ -321,6 +307,7 @@ Challenge.prototype = {
 
 	end: function(correct) {
 		this.correct = correct;
+		this.html.find('.result input').val(this.result);
 		this.html.addClass('finished '+(correct?'correct':'out_of_time'));
 		this.html.find('.result input').attr('disabled',true);
 		this.stop_timing();
@@ -335,8 +322,11 @@ function Game() {
 	for(var difficulty in levels) {
 		this.scores[difficulty] = {streak: 0, correct: 0, attempted: 0, total_time: 0, average_time: null};
 	}
+	this.load();
 }
 Game.prototype = {
+	version: 1,
+
 	new_challenge: function() {
 		if(this.current_challenge && this.current_challenge.correct===undefined) {
 			this.current_challenge.end(false);
@@ -368,13 +358,50 @@ Game.prototype = {
 			score.streak = 0;
 		}
 
-		var summary_element = $('<li class="summary"><span class="score">'+show_fraction(score.correct,score.attempted)+'</span> '+c.difficulty+' puzzles solved'+(score.streak>0 ? ' <span class="streak">(streak '+score.streak+')</span>':'')+'. Average time <span class="average_time">'+(score.average_time!==null ? show_time(score.average_time) : '∞s')+'</span>');
+		this.summarise(this.difficulty);
+		this.save();
+	},
+
+	summarise: function(difficulty) {
+		var score = this.scores[difficulty];
+		var summary_element = $('<li class="summary"><span class="score">'+show_fraction(score.correct,score.attempted)+'</span> '+difficulty+' puzzles solved'+(score.streak>0 ? ' <span class="streak">(streak '+score.streak+')</span>':'')+'. Average time <span class="average_time">'+(score.average_time!==null ? show_time(score.average_time) : '∞s')+'</span>');
 		$('#challenges').append(summary_element);
+	},
+
+	load: function() {
+		if(!(window.localStorage && localStorage.thirtysecondchallenge)) {
+			return;
+		}
+		var data = JSON.parse(localStorage.thirtysecondchallenge);
+		if(data.version!=this.version) {
+			return;
+		}
+		this.scores = data.scores;
+		this.difficulty = data.difficulty;
+
+		for(var difficulty in this.scores) {
+			this.summarise(difficulty);
+		}
+	},
+
+	save: function() {
+		if(!window.localStorage) {
+			return;
+		}
+
+		var data = {
+			version: this.version,
+			scores: this.scores,
+			difficulty: this.difficulty
+		}
+
+		localStorage.thirtysecondchallenge = JSON.stringify(data);
 	}
 }
 
-var game = new Game();
+var game;
 $(document).ready(function() {
+	game = new Game();
 	$('.another').on('click',function() {
 		game.difficulty = $(this).attr('data-difficulty');
 		game.new_challenge()
