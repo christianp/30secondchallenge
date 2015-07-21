@@ -12,6 +12,9 @@ var superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 var subscripts = "₀₁₂₃₄₅₆₇₈₉";
 
 function show_script(n,scripts) {
+	if(n==0) {
+		return scripts[0];
+	}
 	var s = '';
 	while(n) {
 		var m = n%10;
