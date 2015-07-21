@@ -59,6 +59,21 @@ function choice(l) {
 	return l[i];
 }
 
+function weighted_choice(l) {
+	var t = 0;
+	var keep = null;
+	for(var i=0;i<l.length;i++) {
+		var o = l[i][0];
+		var w = l[i][1];
+		var p = w/(t+w);
+		if(keep===null || Math.random()<p) {
+			keep = o;
+		}
+		t += w;
+	}
+	return keep;
+}
+
 
 var square_it = {
 	test: function(n){ return n>1 && n<20 },
@@ -166,9 +181,34 @@ var ten_percent = {
 }
 
 var levels = {
-	'easy': {steps: 9, start: [1,20], moves: [multiply,halve_it,add,subtract,square_it,divide]},
-	'medium': {steps: 9, start: [10,100], moves: [multiply,halve_it,double_it,square_it,divide,fraction,subtract]},
-	'hard': {steps: 9, start: [1,100], moves: [multiply,halve_it,square_it,cube_it,divide,fraction,ten_percent,add,subtract]}
+	'easy': {steps: 9, start: [1,20], moves: [
+		[multiply,1],
+		[halve_it,2],
+		[add,3],
+		[subtract,3],
+		[square_it,1],
+		[divide,1]
+	]},
+	'medium': {steps: 9, start: [10,100], moves: [
+		[multiply,2],
+		[halve_it,2],
+		[double_it,2],
+		[square_it,1],
+		[divide,1],
+		[fraction,1],
+		[subtract,1]
+	]},
+	'hard': {steps: 9, start: [1,100], moves: [
+		[multiply,3],
+		[halve_it,2],
+		[square_it,2],
+		[cube_it,1],
+		[divide,2],
+		[fraction,1],
+		[ten_percent,3],
+		[add,1],
+		[subtract,1]
+	]}
 }
 
 function Challenge(difficulty) {
@@ -192,12 +232,12 @@ Challenge.prototype = {
 		var last_move = null;
 		while(steps>0) {
 			var possibles = this.level.moves.filter(function(m){
-				return m!=last_move && (m.test===true || m.test(n,steps,last_move))
+				return m!=last_move && (m[0].test===true || m[0].test(n,steps,last_move))
 			});
 			if(!possibles.length) {
 				throw(new Error("No possible moves"));
 			}
-			var move = choice(possibles);
+			var move = weighted_choice(possibles);
 			var new_moves = move.fn(n,steps);
 			steps -= new_moves.length;
 			n = new_moves[new_moves.length-1].n;
