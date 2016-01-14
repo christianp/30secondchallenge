@@ -16,7 +16,10 @@
 		<p class="instructions">
 			Start with the number in the first box and follow the instructions until you get to the end. Enter your answer and press enter (or click on the timer).
 		</p>
-		<p><label><input type="checkbox" id="focus_toggle"> focus start number instead of input box</label></p>
+		<div id="options">
+			<p><label><input type="checkbox" id="focus_toggle"> focus start number instead of input box</label></p>
+			<p><label>Time limit: <input type="range" min="1" max="27" value="6" id="time_limit"></label> <span id="time_limit-display"></span></p>
+		</div>
 
 		<ul id="challenges"></ul>
 

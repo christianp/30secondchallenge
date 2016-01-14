@@ -1,11 +1,26 @@
 function randrange(a,b) {
 	return Math.floor(Math.random()*(b-a)+a);
 }
+function zfill(n,l) {
+	n += '';
+	while(n.length<l) {
+		n='0'+n;
+	}
+	return n;
+}
 
 function show_time(t) {
+	if(t==Infinity) {
+		return '';
+	}
 	var tenths = Math.floor(t*10) % 10;
-	var seconds = Math.floor(t);
-	return seconds+'.'+tenths+'s'
+	var seconds = Math.floor(t)%60;
+	var minutes = Math.floor((t-seconds)/60);
+	var out = zfill(seconds,2)+'.'+tenths;
+	if(minutes>=1) {
+		out = zfill(minutes,2)+':'+out;
+	}
+	return out;
 }
 
 var superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹";
@@ -199,8 +214,31 @@ var levels = {
 	]}
 }
 
-function Challenge(difficulty) {
-	this.difficulty = difficulty
+var times = [
+	[12,function(i){return 5*i}, function(i,s) {return s+' seconds'}],
+	[5, function(i){return 10*i+60}, function(i,s) {return s+' seconds'}],
+	[9, function(i){return 60*(i+1)}, function(i,s) {return (i+1)+' minutes'}],
+	[1, function(i){return Infinity}, function() {return '∞'}]
+];
+
+function invert_time(s) {
+	var t = 0;
+	for(var i=0;i<times.length;i++) {
+		if(times[i][1](times[i][0]) >= s) {
+			for(var j=1;j<=times[i][0];j++) {
+				if(times[i][1](j)>=s) {
+					return j+t;
+				}
+			}
+		}
+		t += times[i][0];
+	}
+}
+
+
+function Challenge(difficulty,time_limit) {
+	this.difficulty = difficulty;
+	this.time_limit = time_limit;
 	this.level = levels[this.difficulty];
 
 	while(!this.moves) {
@@ -235,7 +273,7 @@ Challenge.prototype = {
 		this.moves = moves;
 		this.result = n;
 		this.time = new Date();
-		this.time_remaining = this.time_available = 30;
+		this.time_remaining = this.time_limit;
 	},
 
 	make_html: function() {
@@ -326,12 +364,26 @@ function Game() {
 }
 Game.prototype = {
 	version: 1,
+	time_limit: 30,
+
+	set_time_limit: function(i) {
+		for(var j=0;j<times.length;j++) {
+			if(i<=times[j][0]) {
+				var s = times[j][1](i);
+				$('#time_limit-display').text(times[j][2](i,s));
+				this.time_limit = s;
+				break;
+			} else {
+				i -= times[j][0];
+			}
+		}
+	},
 
 	new_challenge: function() {
 		if(this.current_challenge && this.current_challenge.correct===undefined) {
 			this.current_challenge.end(false);
 		}
-		var c = this.current_challenge = new Challenge(this.difficulty);
+		var c = this.current_challenge = new Challenge(this.difficulty,this.time_limit);
 		$('#challenges').append(c.html);
 		switch(this.focus) {
 		case 'answer':
@@ -343,6 +395,7 @@ Game.prototype = {
 		}
 		window.scrollTo(0,c.html.offset().top);
 	},
+
 	end_game: function() {
 		var c = this.current_challenge;
 		var score = this.scores[c.difficulty];
@@ -352,7 +405,7 @@ Game.prototype = {
 		if(c.correct) {
 			score.correct += 1;
 			score.streak += 1;
-			score.total_time += c.time_available - c.time_remaining;
+			score.total_time += c.time_limit - c.time_remaining;
 			score.average_time = score.total_time/score.correct;
 		} else {
 			score.streak = 0;
@@ -378,6 +431,7 @@ Game.prototype = {
 		}
 		this.scores = data.scores;
 		this.difficulty = data.difficulty;
+		this.time_limit = data.time_limit;
 
 		for(var difficulty in this.scores) {
 			this.summarise(difficulty);
@@ -392,7 +446,8 @@ Game.prototype = {
 		var data = {
 			version: this.version,
 			scores: this.scores,
-			difficulty: this.difficulty
+			difficulty: this.difficulty,
+			time_limit: this.time_limit
 		}
 
 		localStorage.thirtysecondchallenge = JSON.stringify(data);
@@ -409,6 +464,10 @@ $(document).ready(function() {
 	$('#focus_toggle').on('change',function() {
 		game.focus = $(this).prop('checked') ? 'start' : 'input';
 	});
+	$('#time_limit').on('input',function() {
+		game.set_time_limit($(this).val());
+		game.save();
+	}).val(invert_time(game.time_limit)).trigger('input');
 	game.new_challenge();
 });
 
