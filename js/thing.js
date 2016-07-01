@@ -274,6 +274,7 @@ Challenge.prototype = {
 		this.result = n;
 		this.time = new Date();
 		this.time_remaining = this.time_limit;
+        this.time_taken = 0;
 	},
 
 	make_html: function() {
@@ -316,14 +317,18 @@ Challenge.prototype = {
 		var d = new Date();
 		var diff = (d - this.time)/1000;
 		this.time = d;
-		this.time_remaining -= diff;
+        this.time_remaining -= diff;
+        this.time_taken += diff;
+        var display;
+        if(this.time_limit!==Infinity) {
 
-		if(this.time_remaining<0) {
-			this.time_remaining = 0;
-			this.end(false);
-		}
-		var s = show_time(this.time_remaining);
-		this.html.find('.time .text').text(s);
+            if(this.time_remaining<0) {
+                this.time_remaining = 0;
+                this.end(false);
+            }
+        }
+        display = show_time(this.time_taken);
+		this.html.find('.time .text').text(display);
 	},
 
 	stop_timing: function() {
@@ -380,6 +385,7 @@ Game.prototype = {
 	},
 
 	new_challenge: function() {
+        document.body.classList.add('started');
 		if(this.current_challenge && this.current_challenge.correct===undefined) {
 			this.current_challenge.end(false);
 		}
@@ -405,7 +411,7 @@ Game.prototype = {
 		if(c.correct) {
 			score.correct += 1;
 			score.streak += 1;
-			score.total_time += c.time_limit - c.time_remaining;
+			score.total_time += c.time_taken;
 			score.average_time = score.total_time/score.correct;
 		} else {
 			score.streak = 0;
@@ -431,7 +437,7 @@ Game.prototype = {
 		}
 		this.scores = data.scores;
 		this.difficulty = data.difficulty;
-		this.time_limit = data.time_limit;
+		this.time_limit = data.time_limit=='infinity' ? Infinity : data.time_limit;
 
 		for(var difficulty in this.scores) {
 			this.summarise(difficulty);
@@ -447,17 +453,25 @@ Game.prototype = {
 			version: this.version,
 			scores: this.scores,
 			difficulty: this.difficulty,
-			time_limit: this.time_limit
+			time_limit: this.time_limit==Infinity ? 'infinity' : this.time_limit
 		}
 
 		localStorage.thirtysecondchallenge = JSON.stringify(data);
-	}
+	},
+
+    reset: function() {
+		if(!(window.localStorage && localStorage.thirtysecondchallenge)) {
+			return;
+		}
+        delete localStorage.thirtysecondchallenge;
+        $('#challenges').html('');
+    }
 }
 
 var game;
 $(document).ready(function() {
 	game = new Game();
-	$('.another').on('click',function() {
+	$('.new-challenge').on('click',function() {
 		game.difficulty = $(this).attr('data-difficulty');
 		game.new_challenge()
 	});
@@ -468,7 +482,13 @@ $(document).ready(function() {
 		game.set_time_limit($(this).val());
 		game.save();
 	}).val(invert_time(game.time_limit)).trigger('input');
-	game.new_challenge();
+    $('#reset').on('click',function() {
+        if(confirm("Delete all your saved scores and start again?")) {
+            game.reset();
+            game = new Game();
+        }
+    });
+	//game.new_challenge();
 });
 
 var owidth = null;

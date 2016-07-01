@@ -19,20 +19,23 @@
 		<div id="options">
 			<p><label><input type="checkbox" id="focus_toggle"> Focus start number instead of input box</label></p>
 			<p><label>Time limit: <input type="range" min="1" max="27" value="6" id="time_limit"></label> <span id="time_limit-display"></span></p>
+            <p><button id="reset">Reset data</button></p>
 		</div>
 
 		<ul id="challenges"></ul>
 
-		<button class="another" data-difficulty="easy">Another easy one</button>
-		<button class="another" data-difficulty="medium">Another medium one</button>
-		<button class="another" data-difficulty="hard">Another hard one</button>
+        <div class="new-challenge-buttons">
+            <button class="new-challenge" data-difficulty="easy"><span class="start">An<br>easy<br> one</span><span class="another">Another<br> easy one</span></button>
+            <button class="new-challenge" data-difficulty="medium"><span class="start">A<br>medium<br> one</span><span class="another">Another<br> medium one</span></button>
+            <button class="new-challenge" data-difficulty="hard"><span class="start">A<br>hard<br> one</span><span class="another">Another<br> hard one</span></button>
+        </div>
 
 
 		<script>
 		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
 		  ga('create', 'UA-134594-6', 'auto');
 		  ga('send', 'pageview');
