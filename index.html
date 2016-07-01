@@ -12,22 +12,24 @@
 		<link rel="stylesheet" href="css/thing.css"></link>
 	</head>
 	<body>
-		<h1>30 second arithmetic challenge</h1>
-		<p class="instructions">
-			Start with the number in the first box and follow the instructions until you get to the end. Enter your answer and press enter (or click on the timer).
-		</p>
+        <header>
+    		<h1>30 second arithmetic challenge</h1>
+            <p class="instructions">
+                Start with the number in the first box and follow the instructions until you get to the end. Enter your answer and press enter (or click on the timer).
+            </p>
+        </header>
 		<div id="options">
 			<p><label><input type="checkbox" id="focus_toggle"> Focus start number instead of input box</label></p>
-			<p><label>Time limit: <input type="range" min="1" max="27" value="6" id="time_limit"></label> <span id="time_limit-display"></span></p>
+            <p><label>Time limit:</label> <input type="range" min="1" max="27" value="6" id="time_limit"></label> <span id="time_limit-display"></span></p>
             <p><button id="reset">Reset data</button></p>
 		</div>
 
 		<ul id="challenges"></ul>
 
         <div class="new-challenge-buttons">
-            <button class="new-challenge" data-difficulty="easy"><span class="start">An<br>easy<br> one</span><span class="another">Another<br> easy one</span></button>
-            <button class="new-challenge" data-difficulty="medium"><span class="start">A<br>medium<br> one</span><span class="another">Another<br> medium one</span></button>
-            <button class="new-challenge" data-difficulty="hard"><span class="start">A<br>hard<br> one</span><span class="another">Another<br> hard one</span></button>
+            <button class="new-challenge" data-difficulty="easy"><span class="start">An easy one</span><span class="another">Another easy one</span></button>
+            <button class="new-challenge" data-difficulty="medium"><span class="start">A medium one</span><span class="another">Another medium one</span></button>
+            <button class="new-challenge" data-difficulty="hard"><span class="start">A hard one</span><span class="another">Another hard one</span></button>
         </div>
 
 

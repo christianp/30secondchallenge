@@ -77,6 +77,18 @@ function weighted_choice(l) {
 	return keep;
 }
 
+/*************
+ * Operations
+ *************
+ */
+
+var easy_square_it = {
+	test: function(n){ return n>1 && n<=12 },
+	fn: function(n) {
+		return [{kind: 'square_it',text:'multiply it by itself',n:n*n}];
+	}
+}
+
 
 var square_it = {
 	test: function(n){ return n>1 && n<20 },
@@ -99,7 +111,7 @@ var halve_it = {
 }
 
 var double_it = {
-	test: function(n,steps,last_move){return last_move!=halve_it},
+	test: function(n,steps,last_move){return last_move!=halve_it && last_move!=double_it},
 	fn: function(n) {
 		return [{kind: 'double_it', text: 'double it', n:n*2}];
 	}
@@ -117,7 +129,16 @@ var subtract = {
 	test: function(n,steps,last_move){return n>5 && last_move!=add && last_move!=subtract},
 	fn: function(n) {
 		var i = randrange(1,Math.min(20,n-5));
-		return [{kind: 'subtract', text: '+'+i, n:n+i}]
+		return [{kind: 'subtract', text: '-'+i, n:n-i}]
+	}
+}
+
+// multiply by a single digit, never try to multiply a number bigger than 20
+var easy_multiply = {
+	test: function(n,steps,last_move){return n<20 && last_move!=divide},
+	fn: function(n) {
+		var f = randrange(2,10);
+		return [{kind: 'multiply',text: '×'+f, n:n*f}];
 	}
 }
 
@@ -126,6 +147,26 @@ var multiply = {
 	fn: function(n) {
 		var f = randrange(2,Math.min(10,Math.floor(200/n)));
 		return [{kind: 'multiply',text: '×'+f, n:n*f}];
+	}
+}
+
+var easy_divide = {
+	test: function(n,steps,last_move) { return n>=10 && n<100 && steps>=2 && last_move!=multiply },
+	fn: function(n) {
+		var d = randrange(2,10);
+		var m = n%d;
+		var o = [];
+		if(m) {
+			if(n<d || coin()) {
+				o.push({kind: 'add', text: '+'+(d-m),n:n+d-m});
+				n += d-m;
+			} else {
+				o.push({kind: 'subtract', text: '-'+m,n:n-m});
+				n -= m;
+			}
+		}
+		o.push({kind: 'divide', text: '÷'+d, n: n/d});
+		return o;
 	}
 }
 
@@ -185,12 +226,12 @@ var ten_percent = {
 
 var levels = {
 	'easy': {steps: 9, start: [1,20], moves: [
-		[multiply,1],
+		[easy_multiply,1],
 		[halve_it,2],
 		[add,3],
 		[subtract,3],
-		[square_it,1],
-		[divide,1]
+		[easy_square_it,1],
+		[easy_divide,1]
 	]},
 	'medium': {steps: 9, start: [10,100], moves: [
 		[multiply,2],
@@ -281,12 +322,12 @@ Challenge.prototype = {
 		var c = this;
 		var container = $('<ol class="challenge">');
 		container.addClass('difficulty-'+this.difficulty);
-		var start = $('<li class="start">');
+		var start = $('<li class="bit step start">');
 		start.append($('<span class="difficulty">').text(this.difficulty));
 		start.append($('<span class="text" tabindex="1">').text(this.start));
 		container.append(start);
 		for(var i=0;i<this.moves.length;i++) {
-			var move_element = $('<li class="move">');
+			var move_element = $('<li class="bit step move">');
 			move_element.addClass(this.moves[i].kind);
 			var text_element = $('<span class="text" tabindex="1">').text(this.moves[i].text);
 			if(this.moves[i].label) {
@@ -295,7 +336,7 @@ Challenge.prototype = {
 			move_element.append(text_element);
 			container.append(move_element);
 		}
-		var result = $('<li class="result">');
+		var result = $('<li class="bit result">');
 		var form = $('<form>');
 		var input = $('<input type="number" tabindex="1" title="Answer">');
 		form.append(input);
@@ -305,7 +346,7 @@ Challenge.prototype = {
 		form.on('submit',function(e) {e.preventDefault(); check_it(); return false});
 		result.append(form);
 		container.append(result);
-		var timer = $('<li class="time">');
+		var timer = $('<li class="bit time">');
 		timer.append('<span class="text">');
 		timer.on('click',check_it);
 		this.timeInterval = setInterval(function() {c.update_time()},50);
@@ -385,7 +426,7 @@ Game.prototype = {
 	},
 
 	new_challenge: function() {
-        document.body.classList.add('started');
+        $('body').addClass('started');
 		if(this.current_challenge && this.current_challenge.correct===undefined) {
 			this.current_challenge.end(false);
 		}
@@ -490,20 +531,3 @@ $(document).ready(function() {
     });
 	//game.new_challenge();
 });
-
-var owidth = null;
-function resize() {
-	if(window.innerWidth==owidth) {
-		return;
-	}
-	var w = owidth = window.innerWidth;
-	var target = 100*13;
-	if(w>=target) {
-		var size = '20px';
-	} else {
-		size = 20*w/target;
-	}
-	$('html').css('font-size',size);
-}
-$(window).on('resize',resize);
-resize();

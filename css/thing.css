@@ -4,20 +4,34 @@ html {
 }
 
 body {
-	width: 60rem;
+	max-width: 60rem;
 	margin: 0 auto;
+}
+
+header h1 {
+    text-align: center;
 }
 
 .instructions {
 	font-size: 16px;
+    margin: 1rem;
 }
 
 
 div#options {
-    border-radius: 1rem;
-    padding: 1rem;
     background: #eee;
-    display: inline-block;
+    padding: 0.5rem 0;
+}
+@media screen and (min-width: 768px) {
+    div#options {
+        padding: 0;
+        border-radius: 1rem;
+        display: inline-block;
+    }
+}
+
+#options p {
+    margin: 1rem;
 }
 
 #options p:not(:last-child) {
@@ -25,11 +39,21 @@ div#options {
 	padding-bottom: 1rem;
 }
 
+#time_limit {
+    width: 100%;
+}
+
 button {
     font-size: 1rem;
-    background: #eee;
+    background: #ccc;
     border: none;
     padding: 0.5rem;
+    width: 100%;
+    cursor: pointer;
+}
+#reset:hover {
+    background: red;
+    color: white;
 }
 
 #challenges {
@@ -40,6 +64,8 @@ button {
 .challenge {
     list-style: none;
     padding: 0;
+    text-align: center;
+    margin: 0 auto;
 }
 .challenge, .summary {
 	margin-bottom: 2rem;
@@ -49,36 +75,79 @@ button {
 	opacity: 0.3;
 }
 
-.challenge li {
+@media screen and (min-width: 400px) {
+    .challenge {
+        width: 20rem;
+    }
+}
+@media screen and (min-width: 600px) {
+    .challenge {
+        width: 30rem;
+    }
+}
+@media screen and (min-width: 1240px) {
+    body {
+        padding: 0 1rem;
+    }
+    .challenge {
+        width: 60rem;
+    }
+}
+
+.bit {
 	box-sizing: border-box;
     display: inline-block;
     padding: 1rem;
     width: 5rem;
     height: 5rem;
-    border-right: 1px solid black;
-    border-bottom: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black;
     vertical-align: middle;
     text-align: center;
     line-height: 3em;
+    margin-bottom: 0.5em;
+    position: relative;
+}
+.step:after, .step:before {
+	left: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+    z-index: 1;
+}
+
+.step:after {
+	border-color: rgba(136, 183, 213, 0);
+	border-left-color: white;
+	border-width: 0.5rem 0 0.5rem 0.5rem;
+	margin-top: -0.5rem;
+}
+.step:before {
+	border-color: rgba(194, 225, 245, 0);
+	border-left-color: black;
+	border-width: 0.6rem 0 0.6rem 0.6rem;
+	margin-top: -0.6rem;
 }
 
 .challenge .difficulty {
 	border-radius: 0.3rem 0 0 0;
 }
 
-.challenge li:first-child {
+.bit:first-child {
 	border-radius: 0.3rem 0 0 0.3rem;
 }
 
-.challenge li:last-child {
+.bit:last-child {
 	border-radius: 0 0.3rem 0.3rem 0;
 }
 
-.challenge li.start {
+.bit.start {
     border-left: 1px solid black;
 }
-.challenge li .text {
+.bit .text {
     line-height: 1rem;
     display: inline-block;
     vertical-align: middle;
@@ -145,6 +214,7 @@ button {
 
 .challenge .time {
     padding: 1rem 0.5rem;
+    border-right: 1px solid;
 }
 .challenge .time:hover {
     background: orange;
@@ -160,18 +230,16 @@ button {
 
 .new-challenge-buttons {
     display: flex;
+    flex-wrap: wrap;
 }
 button.new-challenge {
-    flex: 1;
-    width: 7.5em;
+    flex: 1 1 5em;
+    width: 5em;
     height: 5em;
-    padding: 0.5em 2em;
+    padding: 0.5em 0;
     border: none;
     box-sizing: border-box;
-	margin-bottom: 2em;
-}
-button:not(:last-child) {
-    margin-right: 5em;
+	margin: 1em;
 }
 
 .started .new-challenge .start {
@@ -181,9 +249,9 @@ button:not(:last-child) {
     display: none;
 }
 .started .new-challenge .another {
-    display: initial;
+    display: inline;
 }
 
 .summary {
-
+    margin: 0 1rem 2rem 1rem;
 }
