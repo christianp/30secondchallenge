@@ -340,15 +340,17 @@ Challenge.prototype = {
 		var form = $('<form>');
 		var input = $('<input type="number" tabindex="1" title="Answer">');
 		form.append(input);
-		function check_it() {
-			c.check(input.val());
-		}
-		form.on('submit',function(e) {e.preventDefault(); check_it(); return false});
+        this.input = input;
+		form.on('submit',function(e) {
+            e.preventDefault(); 
+            c.submit();
+            return false;
+        });
 		result.append(form);
 		container.append(result);
 		var timer = $('<li class="bit time">');
 		timer.append('<span class="text">');
-		timer.on('click',check_it);
+		timer.on('click',function() {c.submit()});
 		this.timeInterval = setInterval(function() {c.update_time()},50);
 		container.append(timer);
 		return container;
@@ -376,6 +378,10 @@ Challenge.prototype = {
 		clearInterval(this.timeInterval);
 	},
 
+    submit: function() {
+        this.check(this.input.val());
+    },
+
 	check: function(n) {
 		if(this.correct) {
 			return;
@@ -390,6 +396,9 @@ Challenge.prototype = {
 	},
 
 	end: function(correct) {
+        if(!this.correct) {
+            this.submit();
+        }
 		this.correct = correct;
 		this.html.find('.result input').val(this.result);
 		this.html.addClass('finished '+(correct?'correct':'out_of_time'));
